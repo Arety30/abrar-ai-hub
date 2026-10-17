@@ -1,0 +1,50 @@
+{
+  "name": "abrar-ai-hub",
+  "productName": "Abrar AI Hub",
+  "version": "1.0.0",
+  "description": "Your private, offline AI workspace — desktop app.",
+  "main": "main.js",
+  "author": "Abrar",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder",
+    "dist:linux": "electron-builder --linux AppImage deb",
+    "dist:win": "electron-builder --win nsis portable",
+    "dist:mac": "electron-builder --mac dmg"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.abrar.aihub",
+    "productName": "Abrar AI Hub",
+    "files": ["main.js", "preload.js", "assets/**/*"],
+    "extraResources": [
+      { "from": "../backend/dist/aihub-web", "to": "backend", "filter": ["**/*"] }
+    ],
+    "linux": {
+      "target": [
+        { "target": "AppImage", "arch": ["x64", "arm64"] },
+        { "target": "deb", "arch": ["x64", "arm64"] }
+      ],
+      "category": "Utility",
+      "icon": "assets/icon-512.png"
+    },
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64", "ia32"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "icon": "assets/icon-512.png"
+    },
+    "mac": {
+      "target": [
+        { "target": "dmg", "arch": ["arm64", "x64"] }
+      ],
+      "category": "public.app-category.productivity",
+      "icon": "assets/icon-512.png"
+    }
+  }
+}

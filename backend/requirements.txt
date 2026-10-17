@@ -1,0 +1,26 @@
+# --- Core web server (all offline once installed) ---
+fastapi
+uvicorn[standard]
+python-multipart
+websockets
+pydantic
+sqlmodel
+
+# --- Local LLM (talks to Ollama over localhost HTTP) ---
+ollama
+httpx
+
+# --- Offline document tools ---
+fpdf2            # create PDFs
+pypdf            # read/extract PDF text
+python-pptx      # generate PowerPoint decks offline
+openpyxl         # generate spreadsheets offline
+markdown         # render markdown
+
+# --- Offline voice (optional, lazy-loaded) ---
+pyttsx3          # offline TTS (espeak/nsss) - no network
+faster-whisper   # offline STT - no network
+
+# --- Desktop UI (CustomTkinter, offline) ---
+customtkinter
+pillow

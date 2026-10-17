@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Abrar AI Hub</title>
+<link rel="manifest" href="/manifest.webmanifest"/>
+<meta name="theme-color" content="#12b886"/>
+<link rel="apple-touch-icon" href="/static/icon-192.png"/>
+<style>
+  :root{
+    --bg:#e6f2fb; --bg2:#d7ebf7; --card:#ffffff; --ink:#0b2545; --ink2:#173a63;
+    --muted:#5c7fa3; --green:#12b886; --green-d:#0ca678; --blue:#1c5fb0; --blue-d:#153f78;
+    --line:#cfe3f2; --black:#0a1424; --shadow:0 6px 24px rgba(11,37,69,.08); --radius:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:linear-gradient(160deg,var(--bg),var(--bg2));color:var(--ink);
+       font-family:'Segoe UI',system-ui,Roboto,sans-serif;display:flex;height:100vh;overflow:hidden}
+  ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:#bcd7ee;border-radius:8px}
+  a{color:var(--blue);text-decoration:none}
+
+  /* sidebar */
+  aside{width:236px;flex:none;background:rgba(255,255,255,.72);backdrop-filter:blur(8px);
+        border-right:1px solid var(--line);display:flex;flex-direction:column;padding:16px 12px}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:800;font-size:19px;color:var(--black);padding:6px 8px}
+  .brand .g{color:var(--green)} .brand .b{color:var(--blue)}
+  .tag{color:var(--muted);font-size:10px;font-weight:800;letter-spacing:.1em;margin:2px 10px 14px}
+  .navgroup{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--muted);margin:12px 10px 4px}
+  nav a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:11px;color:var(--ink2);
+        font-size:14px;cursor:pointer;font-weight:600;transition:.15s}
+  nav a:hover{background:var(--bg)}
+  nav a.active{background:var(--green);color:#fff;box-shadow:0 4px 12px rgba(18,184,134,.35)}
+  .navscroll{overflow:auto;flex:1;margin-top:4px}
+  .side-foot{border-top:1px solid var(--line);padding-top:10px;color:var(--muted);font-size:11px}
+  .dot{color:var(--green)}
+
+  /* main */
+  main{flex:1;overflow:auto;position:relative}
+  .wrap{max-width:1080px;margin:0 auto;padding:26px 30px 60px}
+  .view{display:none;animation:fade .35s ease} .view.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  h1{font-size:26px;margin:0 0 4px;color:var(--black)} h2{color:var(--black)}
+  .sub{color:var(--muted);margin:0 0 20px}
+
+  /* homepage hero */
+  .hero{background:linear-gradient(135deg,var(--blue),var(--blue-d));color:#fff;border-radius:24px;
+        padding:40px 38px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;
+        background:radial-gradient(circle,rgba(18,184,134,.55),transparent 70%);}
+  .hero h1{color:#fff;font-size:34px;line-height:1.15;max-width:640px}
+  .hero p{color:#d6e6fb;font-size:17px;max-width:560px;margin:12px 0 22px}
+  .cta{display:inline-flex;align-items:center;gap:8px;background:var(--green);color:#fff;font-weight:800;
+       padding:13px 24px;border-radius:12px;border:0;cursor:pointer;font-size:15px;box-shadow:0 6px 18px rgba(18,184,134,.4)}
+  .cta.ghost{background:rgba(255,255,255,.14);box-shadow:none;margin-left:10px}
+  .cta:hover{transform:translateY(-2px);transition:.15s}
+  .trust{margin-top:20px;color:#bcd7f5;font-size:13px}
+
+  /* stat strip */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:14px;margin:22px 0}
+  .stat{background:var(--card);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);
+        border:1px solid var(--line)}
+  .stat .n{font-size:30px;font-weight:800;color:var(--green)}
+  .stat .l{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+
+  /* feature cards */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-bottom:8px}
+  .fcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px;
+         cursor:pointer;box-shadow:var(--shadow);transition:.18s;position:relative;overflow:hidden}
+  .fcard:hover{transform:translateY(-4px);border-color:var(--green)}
+  .fcard .ico{font-size:30px}
+  .fcard h3{margin:10px 0 4px;color:var(--black);font-size:17px}
+  .fcard p{color:var(--muted);font-size:13px;margin:0;line-height:1.5}
+  .fcard .go{color:var(--green);font-weight:800;font-size:13px;margin-top:12px;display:inline-block}
+  .groupt{font-size:13px;font-weight:800;color:var(--blue);letter-spacing:.05em;margin:24px 0 12px;text-transform:uppercase}
+
+  /* chat */
+  .chatwrap{display:flex;flex-direction:column;height:calc(100vh - 0px)}
+  .msgs{flex:1;overflow:auto;padding:8px 2px}
+  .msg{max-width:720px;margin:10px 0;padding:12px 15px;border-radius:14px;white-space:pre-wrap;line-height:1.5;box-shadow:var(--shadow)}
+  .msg.user{background:var(--green);color:#fff;margin-left:auto;border-bottom-right-radius:4px}
+  .msg.ai{background:var(--card);border:1px solid var(--line);border-bottom-left-radius:4px}
+  .chip{font-family:ui-monospace,monospace;font-size:11px;color:var(--blue);margin:3px 0 3px 6px}
+  .chip.ok{color:var(--green)}
+  .composer{display:flex;gap:10px;padding:12px 0 4px}
+  .composer textarea{flex:1;background:var(--card);border:1px solid var(--line);border-radius:13px;
+        padding:13px;font-size:14px;resize:none;height:52px;font-family:inherit;color:var(--ink)}
+  /* generic */
+  .btn{background:var(--green);color:#fff;border:0;border-radius:12px;padding:11px 18px;font-weight:800;cursor:pointer}
+  .btn:hover{background:var(--green-d)} .btn.b{background:var(--blue)} .btn.b:hover{background:var(--blue-d)}
+  .btn.ghost{background:var(--bg);color:var(--ink2)}
+  select,input,textarea{font-family:inherit}
+  .field{background:var(--card);border:1px solid var(--line);border-radius:11px;padding:10px 12px;color:var(--ink)}
+  .row{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 15px;margin:9px 0;
+       display:flex;align-items:center;gap:12px;box-shadow:var(--shadow)}
+  .row .grow{flex:1} .muted{color:var(--muted);font-size:12.5px}
+  .pri{width:11px;height:11px;border-radius:50%;flex:none}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+  .pill{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 13px;font-size:12.5px;color:var(--ink2)}
+  .split{display:grid;grid-template-columns:260px 1fr;gap:16px}
+  .list{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:8px;box-shadow:var(--shadow);max-height:70vh;overflow:auto}
+  .list button{width:100%;text-align:left;background:none;border:0;padding:10px 12px;border-radius:10px;color:var(--ink);cursor:pointer;font-size:13.5px}
+  .list button:hover{background:var(--bg)}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+  /* quiz */
+  .qopt{display:block;width:100%;text-align:left;margin:8px 0;padding:13px 15px;border-radius:12px;border:1px solid var(--line);
+        background:var(--card);cursor:pointer;font-size:15px;color:var(--ink)}
+  .qopt:hover{border-color:var(--green)} .qopt.correct{background:var(--green);color:#fff;border-color:var(--green)}
+  .qopt.wrong{background:#fde2e2;border-color:#e57373}
+  .big{font-size:44px;font-weight:800;color:var(--green);text-align:center}
+  canvas{width:100%;height:64vh;background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}
+  .badge{font-size:10px;padding:2px 8px;border-radius:7px;background:var(--bg);color:var(--blue);font-weight:700}
+  .grade{display:flex;gap:8px;justify-content:center;margin-top:16px}
+  .grade button{border:0;border-radius:10px;padding:11px 18px;font-weight:800;color:#fff;cursor:pointer}
+</style>
+</head>
+<body>
+<aside>
+  <div class="brand">◆ <span>Abrar <span class="g">AI</span></span></div>
+  <div class="tag">LOCAL · OFFLINE · PRIVATE</div>
+  <div class="navscroll" id="nav"></div>
+  <div class="side-foot">
+    <div id="stat"><span class="dot">●</span> connecting…</div>
+    <div id="who" style="font-size:11px;margin-top:4px"></div>
+    <div style="display:flex;justify-content:space-between;margin-top:4px">
+      <a href="/suite" style="font-size:11px">console →</a>
+      <a onclick="logout()" style="font-size:11px;cursor:pointer">log out</a>
+    </div>
+  </div>
+</aside>
+<main><div class="wrap">
+  <!-- HOME -->
+  <div class="view on" id="v-home">
+    <div class="hero">
+      <h1>Your entire AI workspace — private, offline, and completely yours.</h1>
+      <p>Chat, learn, plan, build. One calm place where a fleet of local AIs helps you think — with nothing ever leaving your device.</p>
+      <button class="cta" onclick="go('chat')">Start chatting →</button>
+      <button class="cta ghost" onclick="document.getElementById('feat').scrollIntoView({behavior:'smooth'})">Explore everything</button>
+      <div class="trust">🔒 100% local models · your data never leaves this machine</div>
+    </div>
+    <div class="stats" id="homestats"></div>
+    <div id="feat"></div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="view" id="v-chat"><div class="chatwrap">
+    <div class="toolbar"><h1 style="margin:0">Chat</h1>
+      <select class="field" id="persona"></select>
+      <span class="pill" id="access"></span></div>
+    <div class="msgs" id="messages"></div>
+    <div class="composer">
+      <textarea id="input" placeholder="Ask anything…  (Enter to send)"></textarea>
+      <button class="btn" id="sendBtn">Send</button>
+    </div>
+  </div></div>
+
+  <!-- STUDY -->
+  <div class="view" id="v-study">
+    <h1>📚 Study</h1><p class="sub">Add sources, then ask questions or generate a study guide — grounded in your material.</p>
+    <div class="split">
+      <div><button class="btn" style="width:100%;margin-bottom:8px" onclick="addDoc()">+ Add source</button>
+        <div class="list" id="doclist"></div></div>
+      <div class="panel">
+        <div class="toolbar"><b id="doctitle">Select a source</b></div>
+        <div class="toolbar"><button class="btn ghost" onclick="study('summary')">Summarize</button>
+          <button class="btn ghost" onclick="study('actions')">Action items</button></div>
+        <div class="toolbar"><input class="field grow" id="studyq" placeholder="Ask about this source…" style="flex:1"><button class="btn" onclick="study('ask')">Ask</button></div>
+        <div id="studyout" style="white-space:pre-wrap;line-height:1.55;margin-top:8px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="view" id="v-quiz">
+    <h1>🧠 Quiz</h1><p class="sub">Generate a quiz from your material and test yourself.</p>
+    <div class="toolbar">
+      <select class="field" id="qsrc"></select>
+      <select class="field" id="qn"><option>3</option><option selected>5</option><option>8</option></select>
+      <select class="field" id="qtype"><option value="mcq">multiple choice</option><option value="open">open-ended</option></select>
+      <button class="btn" onclick="genQuiz()">Generate quiz</button>
+    </div>
+    <div class="panel" id="quizcard"><p class="muted">Pick a source and generate a quiz to begin.</p></div>
+  </div>
+
+  <!-- REVIEW -->
+  <div class="view" id="v-review">
+    <h1>🔁 Review</h1><p class="sub">Spaced repetition — the cards you struggle with come back more often.</p>
+    <div class="toolbar"><span class="pill" id="revcount"></span>
+      <button class="btn ghost" onclick="importReview()">⚡ Import from flashcards</button></div>
+    <div class="panel" id="revcard"></div>
+  </div>
+
+  <!-- TASKS -->
+  <div class="view" id="v-tasks">
+    <h1>✅ Tasks</h1><p class="sub">Your local to-do list & reminders.</p>
+    <div class="toolbar"><input class="field grow" id="t-title" placeholder="New task…" style="flex:1">
+      <input class="field" id="t-due" placeholder="due YYYY-MM-DD">
+      <select class="field" id="t-pri"><option>normal</option><option>high</option><option>low</option></select>
+      <button class="btn" onclick="addTask()">Add</button></div>
+    <div id="tasks"></div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div class="view" id="v-calendar">
+    <h1>📅 Calendar</h1><p class="sub">Your local agenda.</p>
+    <div class="toolbar"><input class="field grow" id="e-title" placeholder="Event title…" style="flex:1">
+      <input class="field" id="e-when" placeholder="2026-08-05T15:00">
+      <input class="field" id="e-loc" placeholder="location">
+      <button class="btn" onclick="addEvent()">Add</button></div>
+    <div id="events"></div>
+  </div>
+
+  <!-- NOTES -->
+  <div class="view" id="v-notes">
+    <h1>📝 Notes</h1><p class="sub">A markdown vault with [[wikilinks]] that feed the graph.</p>
+    <div class="split">
+      <div><button class="btn" style="width:100%;margin-bottom:8px" onclick="newNote()">+ New note</button>
+        <div class="list" id="notelist"></div></div>
+      <div class="panel">
+        <input class="field" id="notename" placeholder="Note title" style="width:100%;font-weight:700;margin-bottom:8px">
+        <textarea class="field" id="notebody" placeholder="Write markdown… link with [[Other Note]]" style="width:100%;height:44vh;resize:vertical"></textarea>
+        <div class="toolbar" style="margin-top:10px"><button class="btn" onclick="saveNote()">Save</button>
+          <button class="btn ghost" onclick="delNote()">Delete</button><span class="muted" id="notestatus"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRAPH -->
+  <div class="view" id="v-graph">
+    <h1>🕸 Knowledge Graph</h1><p class="sub">How your notes connect. Green = notes · blue = meetings.</p>
+    <div class="toolbar"><button class="btn ghost" onclick="loadGraph()">⟳ Rebuild</button></div>
+    <canvas id="graph"></canvas>
+  </div>
+
+  <!-- CONNECTORS -->
+  <div class="view" id="v-connectors">
+    <h1>🔌 Connectors</h1><p class="sub">Specialist AIs wired to the right tools. One click puts you in the chat as that expert.</p>
+    <div class="grid" id="connectors"></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="view" id="v-settings">
+    <h1>⚙ Settings</h1><p class="sub">Local models & agent behaviour.</p>
+    <div class="panel" id="settings"></div>
+  </div>
+</div></main>
+
+<script>
+const $=s=>document.querySelector(s);
+const api=(p,o)=>fetch(p,o).then(r=>{if(r.status===401){location.href='/login';throw new Error('unauth');}return r.json();});
+let history=[], curDoc=null, curNote=null, quizState=null;
+async function logout(){await fetch('/api/auth/logout',{method:'POST'});location.href='/login';}
+fetch('/api/auth/me').then(r=>r.json()).then(u=>{if(u.username)$('#who').textContent='👤 '+u.username+(u.role==='admin'?' (admin)':'');});
+
+// ---- nav ----
+const NAV=[
+ ['MAIN',[['home','🏠 Home'],['chat','🤖 Chat'],['connectors','🔌 Connectors']]],
+ ['LEARN',[['study','📚 Study'],['quiz','🧠 Quiz'],['review','🔁 Review']]],
+ ['ORGANIZE',[['notes','📝 Notes'],['graph','🕸 Graph'],['tasks','✅ Tasks'],['calendar','📅 Calendar']]],
+ ['SYSTEM',[['settings','⚙ Settings']]],
+];
+const nav=$('#nav');
+NAV.forEach(([g,items])=>{
+  const h=document.createElement('div');h.className='navgroup';h.textContent=g;nav.appendChild(h);
+  items.forEach(([k,label])=>{const a=document.createElement('a');a.dataset.k=k;a.textContent=label;
+    a.onclick=()=>go(k);nav.appendChild(a);});
+});
+function go(k){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  $('#v-'+k).classList.add('on');
+  document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('active',a.dataset.k===k));
+  main.scrollTop=0;
+  ({study:loadDocs,quiz:initQuiz,review:loadReview,tasks:loadTasks,calendar:loadEvents,
+    notes:loadNotes,graph:loadGraph,connectors:loadConnectors,settings:loadSettings,home:loadHome}[k]||(()=>{}))();
+}
+const main=document.querySelector('main');
+
+// ---- health / home ----
+const PNAMES={assistant:'🤖 Assistant',study_partner:'🎓 Study Partner',coder:'💻 Coder',brainstorm:'💡 Brainstorm',
+  pa:'🗂 Personal Assistant',researcher:'🔬 Researcher',product:'📦 Product',manager:'📊 Manager',
+  advisor:'💰 Advisor',smb:'🏪 Small Biz',investor:'📈 Investor'};
+const FEATURES=[
+ ['THINK',[['chat','🤖','Chat','Talk to a local AI that can actually do things on your machine.'],
+   ['connectors','🔌','Connectors','Nine specialist experts — researcher, coder, advisor & more.']]],
+ ['LEARN',[['study','📚','Study','Turn any source into answers, summaries & study guides.'],
+   ['quiz','🧠','Quiz','Test yourself with instant, AI-graded quizzes.'],
+   ['review','🔁','Review','Never forget — spaced repetition that adapts to you.']]],
+ ['ORGANIZE',[['notes','📝','Notes','A linked note vault that grows into a knowledge graph.'],
+   ['graph','🕸','Graph','See how everything you know connects.'],
+   ['tasks','✅','Tasks','A calm to-do list that the AI can manage for you.'],
+   ['calendar','📅','Calendar','Your private agenda, exportable anywhere.']]],
+];
+function loadHome(){
+  api('/api/stats').then(s=>{
+    const pick={notes:'Notes',tasks:'Tasks',events:'Events',memories:'Things I remember',documents:'Sources'};
+    $('#homestats').innerHTML=Object.entries(pick).map(([k,l])=>
+      `<div class="stat"><div class="n" data-c="${s[k]||0}">0</div><div class="l">${l}</div></div>`).join('');
+    document.querySelectorAll('#homestats .n').forEach(el=>{let t=+el.dataset.c,i=0;
+      const step=Math.max(1,Math.ceil(t/20));const iv=setInterval(()=>{i+=step;if(i>=t){i=t;clearInterval(iv)}el.textContent=i},25);});
+  });
+  $('#feat').innerHTML=FEATURES.map(([g,items])=>`<div class="groupt">${g}</div><div class="grid">`+
+    items.map(([k,ic,n,d])=>`<div class="fcard" onclick="go('${k}')"><div class="ico">${ic}</div>
+      <h3>${n}</h3><p>${d}</p><span class="go">Open →</span></div>`).join('')+`</div>`).join('');
+}
+api('/health').then(h=>{
+  $('#stat').innerHTML=`<span class="dot">●</span> ${h.ollama_online?'online':'offline'} · ${h.tools} tools`;
+  const sel=$('#persona');h.personas.forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=PNAMES[p]||p;sel.appendChild(o)});
+}).catch(()=>$('#stat').textContent='● backend offline');
+loadHome();
+
+// ---- chat ----
+function bubble(cls,t){const d=document.createElement('div');d.className='msg '+cls;d.textContent=t;$('#messages').appendChild(d);d.scrollIntoView();return d;}
+function chip(t,ok){const d=document.createElement('div');d.className='chip'+(ok?' ok':'');d.textContent=t;$('#messages').appendChild(d);d.scrollIntoView();}
+bubble('ai',"Hi! I'm your local, offline AI. Pick a mode above and ask me anything — I can run tools, take notes, do math, and more.");
+async function send(){const t=$('#input').value.trim();if(!t)return;$('#input').value='';bubble('user',t);
+  const think=bubble('ai','…');$('#sendBtn').disabled=true;
+  try{const r=await api('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({message:t,persona:$('#persona').value,history})});
+    think.remove();(r.events||[]).forEach(e=>chip((e.kind==='tool_call'?'→ ':'✓ ')+(e.name||''),e.kind==='tool_result'));
+    bubble('ai',r.reply||'(no reply)');history.push({role:'user',content:t},{role:'assistant',content:r.reply});history=history.slice(-12);
+  }catch(e){think.textContent='⚠ '+e}$('#sendBtn').disabled=false;}
+$('#sendBtn').onclick=send;
+$('#input').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}});
+
+// ---- tasks ----
+async function loadTasks(){const ts=await api('/api/tasks');const c={high:'#e03131',normal:'#1c5fb0',low:'#5c7fa3'};
+  $('#tasks').innerHTML=ts.map(t=>`<div class="row"><input type="checkbox" ${t.done?'checked':''} onchange="toggleTask(${t.id})">
+    <span class="pri" style="background:${c[t.priority]||'#1c5fb0'}"></span>
+    <span class="grow" style="${t.done?'color:#5c7fa3;text-decoration:line-through':''}">${esc(t.title)}${t.due?' · <span class="muted">due '+t.due+'</span>':''}</span></div>`).join('')||'<p class="muted">No tasks yet.</p>';}
+async function addTask(){if(!$('#t-title').value)return;await api('/api/tasks',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:$('#t-title').value,due:$('#t-due').value,priority:$('#t-pri').value})});$('#t-title').value='';$('#t-due').value='';loadTasks();}
+async function toggleTask(id){await api('/api/tasks/'+id+'/toggle',{method:'POST'});loadTasks();}
+
+// ---- calendar ----
+async function loadEvents(){const es=await api('/api/events');const now=new Date().toISOString();
+  $('#events').innerHTML=es.map(e=>`<div class="row"><span class="pri" style="background:${e.start>=now?'#12b886':'#5c7fa3'}"></span>
+    <div class="grow"><b>${esc(e.title)}</b><div class="muted">${esc(e.start)}${e.location?' · '+esc(e.location):''}</div></div></div>`).join('')||'<p class="muted">No events.</p>';}
+async function addEvent(){if(!$('#e-title').value||!$('#e-when').value)return;await api('/api/events',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:$('#e-title').value,start:$('#e-when').value,location:$('#e-loc').value})});$('#e-title').value='';$('#e-when').value='';$('#e-loc').value='';loadEvents();}
+
+// ---- study ----
+async function loadDocs(){const ds=await api('/api/documents');
+  $('#doclist').innerHTML=ds.map(d=>`<button onclick='openDoc(${d.id},${JSON.stringify(d.title)})'>${esc(d.title)}<div class="muted">${d.word_count} words</div></button>`).join('')||'<p class="muted">No sources yet.</p>';}
+function openDoc(id,title){curDoc=id;$('#doctitle').textContent=title;$('#studyout').textContent='';}
+async function addDoc(){const title=prompt('Source title:');if(!title)return;const content=prompt('Paste the content:')||'';
+  await api('/api/documents',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,content})});loadDocs();}
+async function study(mode){if(!curDoc){$('#studyout').textContent='Pick a source first.';return;}
+  $('#studyout').textContent='⏳ thinking…';
+  const r=await api('/api/study/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({doc_id:curDoc,mode,question:$('#studyq').value})});
+  $('#studyout').textContent=r.answer;}
+
+// ---- quiz ----
+async function initQuiz(){const src=await api('/api/quiz/sources');$('#qsrc').innerHTML=src.map(s=>`<option>${esc(s)}</option>`).join('');}
+async function genQuiz(){$('#quizcard').innerHTML='<p class="muted">⏳ generating…</p>';
+  const r=await api('/api/quiz/generate',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({source:$('#qsrc').value,n:$('#qn').value,qtype:$('#qtype').value})});
+  quizState={q:r.questions,i:0,score:0};if(!r.questions.length){$('#quizcard').innerHTML='<p class="muted">Could not generate — add richer sources.</p>';return;}renderQ();}
+function renderQ(){const st=quizState,q=st.q[st.i];let h=`<div class="muted">Question ${st.i+1} of ${st.q.length} · score ${st.score}</div><h2>${esc(q.question)}</h2>`;
+  if(q.type==='open'){h+=`<textarea class="field" id="ans" style="width:100%;height:80px"></textarea><div class="toolbar" style="margin-top:10px"><button class="btn" onclick="gradeOpen()">Submit</button></div><div id="qfb"></div>`;}
+  else{h+=q.options.map((o,i)=>`<button class="qopt" data-i="${i}" onclick="answer(${i})">${String.fromCharCode(65+i)}. ${esc(o)}</button>`).join('')+`<div id="qfb"></div>`;}
+  $('#quizcard').innerHTML=h;}
+function answer(i){const q=quizState.q[quizState.i];document.querySelectorAll('.qopt').forEach((b,j)=>{if(j===q.answer)b.classList.add('correct');else if(j===i)b.classList.add('wrong');b.onclick=null;});
+  if(i===q.answer)quizState.score++;$('#qfb').innerHTML=`<p>${i===q.answer?'✓ Correct!':'✗'} ${esc(q.explanation||'')}</p>`+nextBtn();}
+async function gradeOpen(){const q=quizState.q[quizState.i];$('#qfb').innerHTML='⏳ grading…';
+  const r=await api('/api/quiz/grade',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q.question,reference:q.answer,answer:$('#ans').value})});
+  if(r.correct)quizState.score++;$('#qfb').innerHTML=`<p>${r.correct?'✓':'✗'} ${Math.round(r.score*100)}% — ${esc(r.feedback)}<br><span class="muted">Reference: ${esc(q.answer)}</span></p>`+nextBtn();}
+function nextBtn(){return `<button class="btn" onclick="nextQ()">${quizState.i===quizState.q.length-1?'See score':'Next'} →</button>`;}
+function nextQ(){if(quizState.i<quizState.q.length-1){quizState.i++;renderQ();}else{const p=Math.round(quizState.score/quizState.q.length*100);
+  $('#quizcard').innerHTML=`<div class="big">${quizState.score}/${quizState.q.length}</div><p style="text-align:center;font-size:18px">${p}% — ${p>=80?'Outstanding!':p>=50?'Nice — review & retry':'Keep studying!'}</p><div class="toolbar" style="justify-content:center"><button class="btn" onclick="genQuiz()">New quiz</button></div>`;}}
+
+// ---- review ----
+let revQueue=[];
+async function loadReview(){const r=await api('/api/review/due');revQueue=r.due;$('#revcount').textContent=`${r.due.length} due · ${r.total} cards`;showRev();}
+function showRev(){if(!revQueue.length){$('#revcard').innerHTML='<div class="big">🎉</div><p style="text-align:center">All caught up!</p>';return;}
+  const c=revQueue[0];$('#revcard').innerHTML=`<h2 style="text-align:center">${esc(c.front)}</h2><div id="back" style="text-align:center;color:var(--green);font-size:18px"></div>
+    <div class="toolbar" style="justify-content:center"><button class="btn b" onclick="revealRev()">Show answer</button></div>`;}
+function revealRev(){const c=revQueue[0];$('#back').textContent=c.back;
+  $('#revcard').querySelector('.toolbar').innerHTML=`<div class="grade">
+    <button style="background:#e03131" onclick="gradeRev(1)">Again</button>
+    <button style="background:#f59f00" onclick="gradeRev(3)">Hard</button>
+    <button style="background:#1c5fb0" onclick="gradeRev(4)">Good</button>
+    <button style="background:#12b886" onclick="gradeRev(5)">Easy</button></div>`;}
+async function gradeRev(q){const c=revQueue.shift();await api('/api/review/grade',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:c.id,quality:q})});if(q<3)revQueue.push(c);showRev();}
+async function importReview(){const r=await api('/api/review/import',{method:'POST'});loadReview();}
+
+// ---- notes ----
+async function loadNotes(){const ns=await api('/api/notes');
+  $('#notelist').innerHTML=ns.map(n=>`<button onclick='openNote(${n.id})'>${esc(n.name)}</button>`).join('')||'<p class="muted">No notes.</p>';window._notes=ns;}
+function openNote(id){const n=window._notes.find(x=>x.id===id);curNote=n;$('#notename').value=n.name;$('#notebody').value=n.content;$('#notestatus').textContent='';}
+function newNote(){curNote=null;$('#notename').value='Untitled '+Date.now();$('#notebody').value='';}
+async function saveNote(){const r=await api('/api/notes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:$('#notename').value,content:$('#notebody').value})});curNote=r;$('#notestatus').textContent='saved ✓';loadNotes();}
+async function delNote(){if(!curNote)return;await api('/api/notes/'+curNote.id,{method:'DELETE'});curNote=null;$('#notename').value='';$('#notebody').value='';loadNotes();}
+
+// ---- graph ----
+let gNodes=[],gLinks=[],gRAF=null;
+async function loadGraph(){const g=await api('/api/graph');const cv=$('#graph');cv.width=cv.offsetWidth;cv.height=cv.offsetHeight;
+  const W=cv.width,H=cv.height;gNodes=g.nodes.map((n,i)=>({...n,x:W/2+Math.cos(i)*140+Math.random()*20,y:H/2+Math.sin(i)*140,vx:0,vy:0}));gLinks=g.links;
+  if(gRAF)cancelAnimationFrame(gRAF);stepGraph();}
+function stepGraph(){const cv=$('#graph');if(!cv.offsetWidth){gRAF=requestAnimationFrame(stepGraph);return;}
+  const ctx=cv.getContext('2d'),W=cv.width,H=cv.height;
+  for(let a=0;a<gNodes.length;a++)for(let b=a+1;b<gNodes.length;b++){const A=gNodes[a],B=gNodes[b];let dx=A.x-B.x,dy=A.y-B.y,d2=dx*dx+dy*dy+.01,f=1600/d2;A.vx+=dx*f;A.vy+=dy*f;B.vx-=dx*f;B.vy-=dy*f;}
+  gLinks.forEach(l=>{const A=gNodes[l.source],B=gNodes[l.target];if(!A||!B)return;let dx=B.x-A.x,dy=B.y-A.y,dist=Math.hypot(dx,dy)||1,f=(dist-110)*.02;A.vx+=dx/dist*f;A.vy+=dy/dist*f;B.vx-=dx/dist*f;B.vy-=dy/dist*f;});
+  gNodes.forEach(n=>{n.vx+=(W/2-n.x)*.008;n.vy+=(H/2-n.y)*.008;n.vx*=.85;n.vy*=.85;n.x+=n.vx;n.y+=n.vy;n.x=Math.max(20,Math.min(W-20,n.x));n.y=Math.max(20,Math.min(H-20,n.y));});
+  ctx.clearRect(0,0,W,H);ctx.strokeStyle='#cfe3f2';ctx.lineWidth=1;gLinks.forEach(l=>{const A=gNodes[l.source],B=gNodes[l.target];if(!A||!B)return;ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke();});
+  gNodes.forEach(n=>{ctx.fillStyle=n.type==='meeting'?'#1c5fb0':'#12b886';ctx.beginPath();ctx.arc(n.x,n.y,7,0,6.29);ctx.fill();
+    ctx.fillStyle='#0b2545';ctx.font='11px Segoe UI';ctx.fillText((n.id||'').slice(0,18),n.x+10,n.y+4);});
+  gRAF=requestAnimationFrame(stepGraph);}
+
+// ---- connectors ----
+async function loadConnectors(){const cs=await api('/api/connectors');
+  $('#connectors').innerHTML=cs.map(c=>`<div class="fcard" onclick="openConnector('${c.persona}')">
+    <div class="ico">${c.icon}</div><h3>${esc(c.name)}</h3><p>${esc(c.description)}</p>
+    <div class="muted" style="font-family:ui-monospace;font-size:10px;margin-top:8px">${c.tools.slice(0,5).join(', ')}</div>
+    <span class="go">Open in Chat →</span></div>`).join('');}
+function openConnector(p){go('chat');$('#persona').value=p;bubble('ai','Switched to '+(PNAMES[p]||p)+' mode.');}
+
+// ---- settings ----
+async function loadSettings(){const s=await api('/api/settings');
+  const roles=['general','tools','coder','reasoner','vision'];
+  $('#settings').innerHTML=`<h3>Models</h3>`+roles.map(r=>`<div class="row"><span class="grow">${r}</span>
+    <select class="field" onchange="saveModel('${r}',this.value)">${(s.installed||[]).map(m=>`<option ${m===s.models[r]?'selected':''}>${m}</option>`).join('')}</select></div>`).join('')
+    +`<h3 style="margin-top:18px">Agent access</h3><div class="toolbar">`+['approval','yolo','sandbox'].map(m=>`<button class="btn ${m===s.agent_access?'':'ghost'}" onclick="saveAccess('${m}')">${m}</button>`).join('')+`</div>`;
+  window._models=s.models;}
+async function saveModel(r,v){window._models[r]=v;await api('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({models:window._models})});}
+async function saveAccess(m){await api('/api/settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({agent_access:m})});loadSettings();}
+
+function esc(s){return (s==null?'':''+s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
+</script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Sign in · Abrar AI Hub</title>
+<link rel="manifest" href="/manifest.webmanifest"/>
+<meta name="theme-color" content="#12b886"/>
+<style>
+  :root{
+    --teal:#15c6a6; --teal2:#0fae8f; --green:#12b886; --green-d:#0ca678;
+    --ink:#0b2545; --muted:#6a89a6; --blue:#1c5fb0; --line:#e2eef0; --white:#fff;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{font-family:'Segoe UI',system-ui,Roboto,sans-serif;color:var(--ink);
+       display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;
+       background:linear-gradient(160deg,var(--teal) 0%,var(--teal2) 55%,#0c9a7e 100%)}
+
+  /* refined decorative layer: soft blurred bokeh + a calm wave, no hard shapes */
+  .decor{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+  .orb{position:absolute;border-radius:50%;filter:blur(1px);opacity:.16;background:#fff}
+  .orb.g{background:#eafff8;opacity:.14}
+  .wave{position:absolute;left:0;right:0;bottom:0;width:100%;height:34vh;display:block}
+
+  .card{position:relative;z-index:2;width:390px;max-width:92vw;background:var(--white);
+        border-radius:26px;padding:34px 34px 28px;
+        box-shadow:0 24px 60px rgba(6,60,50,.28),0 2px 0 rgba(255,255,255,.6) inset}
+  .brand{display:flex;align-items:center;justify-content:center;gap:8px;font-weight:800;font-size:22px}
+  .brand .dot{color:var(--green)} .brand .b{color:var(--blue)}
+  .tag{color:var(--muted);font-size:12px;text-align:center;margin:4px 0 22px;letter-spacing:.02em}
+  h2{font-size:19px;margin:0 0 16px;font-weight:700}
+
+  .field{position:relative;margin:12px 0}
+  .field .ico{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px}
+  .field input{width:100%;padding:14px 14px 14px 42px;border:1.5px solid var(--line);border-radius:13px;
+        font-size:15px;color:var(--ink);background:#f8fbfc;transition:.15s}
+  .field input:focus{outline:none;border-color:var(--green);background:#fff;
+        box-shadow:0 0 0 4px rgba(18,184,134,.12)}
+  .field input::placeholder{color:#9db4c5}
+
+  button.primary{width:100%;margin-top:18px;padding:14px;border:0;border-radius:13px;
+        background:var(--green);color:#fff;font-weight:800;font-size:15.5px;cursor:pointer;
+        box-shadow:0 8px 20px rgba(18,184,134,.38);transition:.15s}
+  button.primary:hover{background:var(--green-d);transform:translateY(-1px)}
+  button.primary:disabled{opacity:.6;cursor:default;transform:none}
+
+  .links{display:flex;justify-content:space-between;align-items:center;margin-top:16px;font-size:13px}
+  .links a{color:var(--blue);cursor:pointer;font-weight:600;text-decoration:none}
+  .links a:hover{text-decoration:underline}
+  .err{color:#e03131;font-size:13px;margin-top:12px;min-height:16px;text-align:center}
+  .foot{text-align:center;color:var(--muted);font-size:11.5px;margin-top:18px}
+  .hint{background:#eefaf6;color:#0c8f6b;border-radius:10px;padding:9px 12px;font-size:12.5px;
+        margin-top:12px;display:none}
+</style>
+</head>
+<body>
+<div class="decor" id="decor">
+  <svg class="wave" viewBox="0 0 1440 320" preserveAspectRatio="none">
+    <path fill="#0b8f74" fill-opacity="0.55" d="M0,192L60,197C120,203,240,213,360,208C480,203,600,181,720,181C840,181,960,203,1080,208C1200,213,1320,203,1380,197L1440,192L1440,320L0,320Z"></path>
+    <path fill="#0a7f68" fill-opacity="0.6" d="M0,256L80,240C160,224,320,192,480,197C640,203,800,245,960,250C1120,256,1280,224,1360,208L1440,192L1440,320L0,320Z"></path>
+  </svg>
+</div>
+
+<div class="card">
+  <div class="brand">◆ <span>Abrar <span class="b">AI</span> Hub</span></div>
+  <div class="tag">Private · offline · yours</div>
+  <h2 id="heading">Welcome back</h2>
+
+  <div class="field"><span class="ico">👤</span>
+    <input id="u" placeholder="Username" autocomplete="username"/></div>
+  <div class="field"><span class="ico">🔒</span>
+    <input id="p" type="password" placeholder="Password" autocomplete="current-password"/></div>
+  <div class="field" id="emailwrap" style="display:none"><span class="ico">✉️</span>
+    <input id="e" type="email" placeholder="Email (optional)"/></div>
+
+  <button class="primary" id="go">Sign in</button>
+  <div class="hint" id="hint">This runs locally — if you forget your password, reset it on the machine (admin).</div>
+  <div class="err" id="err"></div>
+
+  <div class="links">
+    <a id="forgot">Forgot password?</a>
+    <a id="switch"></a>
+  </div>
+  <div class="foot">🔒 Everything stays on your machine.</div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+let mode="login", firstRun=false;
+
+// soft, refined bokeh instead of hard coins
+(function bokeh(){
+  const d=$('#decor');const N=14;
+  for(let i=0;i<N;i++){const o=document.createElement('div');o.className='orb'+(i%2?' g':'');
+    const s=30+Math.random()*90;o.style.width=o.style.height=s+'px';
+    o.style.left=(Math.random()*100)+'%';o.style.top=(45+Math.random()*52)+'%';
+    o.style.filter='blur('+(1+Math.random()*3)+'px)';o.style.opacity=(.08+Math.random()*.12);
+    d.appendChild(o);}
+})();
+
+fetch('/api/auth/status').then(r=>r.json()).then(s=>{
+  if(!s.registered){firstRun=true;setMode('register');}
+  else setMode('login');
+});
+
+function setMode(m){
+  mode=m;
+  $('#heading').textContent = m==='register'?(firstRun?'Create your admin account':'Create your account'):'Welcome back';
+  $('#go').textContent = m==='register'?'Create account':'Sign in';
+  $('#emailwrap').style.display = m==='register'?'block':'none';
+  $('#p').setAttribute('autocomplete', m==='register'?'new-password':'current-password');
+  const sw=$('#switch');
+  if(firstRun){ sw.textContent=''; $('#forgot').style.visibility='hidden'; }
+  else { sw.textContent = m==='login'?'Create account':'Have an account? Sign in';
+         sw.onclick=()=>setMode(m==='login'?'register':'login'); $('#forgot').style.visibility='visible'; }
+  $('#err').textContent=''; $('#hint').style.display='none';
+}
+$('#forgot').onclick=()=>{$('#hint').style.display='block';};
+
+async function submit(){
+  const username=$('#u').value.trim(), password=$('#p').value, email=$('#e').value;
+  if(!username||!password){$('#err').textContent='Enter a username and password.';return;}
+  $('#go').disabled=true;
+  const r=await fetch('/api/auth/'+(mode==='register'?'register':'login'),{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({username,password,email})});
+  const d=await r.json();
+  $('#go').disabled=false;
+  if(r.ok) location.href='/'; else $('#err').textContent=d.detail||'Something went wrong.';
+}
+$('#go').onclick=submit;
+[$('#u'),$('#p'),$('#e')].forEach(el=>el.addEventListener('keydown',e=>{if(e.key==='Enter')submit();}));
+</script>
+</body>
+</html>

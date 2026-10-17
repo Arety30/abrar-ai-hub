@@ -1,0 +1,5 @@
+"""PyInstaller entry point for the web backend (so it bundles cleanly into a binary)."""
+from app.web.server import main
+
+if __name__ == "__main__":
+    main()

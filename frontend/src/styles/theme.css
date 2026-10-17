@@ -1,0 +1,180 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Syne:wght@700;800&display=swap');
+
+:root {
+  --font-size: 14px;
+  --radius: 0.25rem; /* tight, technical radius */
+
+  /* Dark Theme Default (Navy-Ink Ground) */
+  --background: #060913;
+  --foreground: #d1d7e0;
+  --card: #0c1222;
+  --card-foreground: #e2e8f0;
+  --popover: #0c1222;
+  --popover-foreground: #e2e8f0;
+  
+  --primary: #f59e0b; /* Warm Amber */
+  --primary-foreground: #060913;
+  
+  --secondary: #00a8a8; /* Blueprint Teal-Cyan */
+  --secondary-foreground: #ffffff;
+  
+  --muted: #111a2e;
+  --muted-foreground: #6c7d93;
+  
+  --accent: #17243d;
+  --accent-foreground: #f59e0b;
+  
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  
+  --border: rgba(0, 168, 168, 0.2); /* Blueprint Cyan tinted borders */
+  --input: #0c1222;
+  --input-background: #111a2e;
+  --switch-background: #17243d;
+  --ring: #00a8a8;
+  
+  --font-sans: 'Syne', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  
+  --sidebar: #04060c;
+  --sidebar-foreground: #9caec2;
+  --sidebar-primary: #00a8a8;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #0c1222;
+  --sidebar-accent-foreground: #f59e0b;
+  --sidebar-border: rgba(0, 168, 168, 0.15);
+  --sidebar-ring: #00a8a8;
+
+  --chart-1: #00a8a8;
+  --chart-2: #f59e0b;
+  --chart-3: #10b981;
+  --chart-4: #a855f7;
+  --chart-5: #ef4444;
+}
+
+.light {
+  /* Light Theme (Cool Near-White Ground) */
+  --background: #f4f6fa;
+  --foreground: #1a2333;
+  --card: #ffffff;
+  --card-foreground: #1a2333;
+  --popover: #ffffff;
+  --popover-foreground: #1a2333;
+  
+  --primary: #d97706; /* Darker warm amber for contrast */
+  --primary-foreground: #ffffff;
+  
+  --secondary: #0d9488; /* Darker blueprint teal */
+  --secondary-foreground: #ffffff;
+  
+  --muted: #e2e8f0;
+  --muted-foreground: #475569;
+  
+  --accent: #eaf2f2;
+  --accent-foreground: #d97706;
+  
+  --border: rgba(13, 148, 136, 0.25);
+  --input: #ffffff;
+  --input-background: #e2e8f0;
+  --switch-background: #cbd5e1;
+  --ring: #0d9488;
+  
+  --sidebar: #e9ecf3;
+  --sidebar-foreground: #334155;
+  --sidebar-primary: #0d9488;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ffffff;
+  --sidebar-accent-foreground: #d97706;
+  --sidebar-border: rgba(13, 148, 136, 0.2);
+  --sidebar-ring: #0d9488;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 4px);
+  
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground font-mono antialiased selection:bg-primary/35 selection:text-white;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans tracking-tight font-extrabold uppercase;
+  }
+
+  /* Custom technical scanlines overlay for Nexus control room style */
+  .scanlines {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .scanlines::before {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    z-index: 2;
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
+    opacity: 0.15;
+  }
+
+  /* Custom scrollbars */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-background/50;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-secondary/30 hover:bg-secondary/50 rounded-sm;
+  }
+}

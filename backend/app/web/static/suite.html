@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Abrar AI Hub — Backend Console</title>
+<style>
+  :root{--bg:#e6f2fb;--bg2:#d7ebf7;--card:#ffffff;--card2:#eef6fc;--fg:#0b2545;--muted:#5c7fa3;
+        --primary:#12b886;--secondary:#12b886;--blue:#1c5fb0;--gold:#1c5fb0;--border:#cfe3f2;--radius:14px}
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(160deg,var(--bg),var(--bg2));color:var(--fg);
+       font-family:system-ui,Segoe UI,Roboto,sans-serif;padding:24px}
+  header{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+  h1{font-size:22px;margin:0}h1 b{color:var(--primary)}
+  .pill{font-size:12px;padding:4px 10px;border-radius:999px;background:var(--card2);color:var(--muted)}
+  .pill.on{color:var(--secondary)} .pill.off{color:var(--primary)}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 18px}
+  a{color:var(--blue)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:22px}
+  .stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+  .stat .n{font-size:26px;font-weight:800}
+  .stat .l{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+  h2{font-size:15px;margin:18px 0 8px;color:var(--fg)}
+  section{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:6px 14px;margin-bottom:18px}
+  .prow{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+  .prow:last-child{border-bottom:0}
+  .prow .grow{flex:1} .cat{font-size:11px;color:var(--muted)}
+  .badge{font-size:10px;padding:2px 7px;border-radius:6px;background:var(--card2);color:var(--blue)}
+  .badge.danger{color:var(--primary)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  td{padding:6px 8px;border-bottom:1px solid var(--border)}
+  td.tool{font-family:ui-monospace,monospace;color:var(--fg)}
+  .sw{width:42px;height:24px;border-radius:999px;background:var(--card2);position:relative;cursor:pointer;flex:none}
+  .sw.on{background:var(--secondary)}
+  .sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.15s}
+  .sw.on::after{left:21px}
+  .models code{background:var(--card2);padding:2px 8px;border-radius:6px;margin-right:8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>◆ Abrar AI Hub <b>· Console</b></h1>
+  <span class="pill" id="ollama">checking…</span>
+  <span class="pill" id="toolsp"></span>
+</header>
+<p class="sub">Backend control panel · <a href="/">open the app →</a> · <span id="host"></span></p>
+
+<div class="grid" id="stats"></div>
+
+<h2>Models</h2>
+<section class="models"><div id="models">…</div></section>
+
+<h2>Plugins <span class="cat">(toggle to enable/disable the tools the agent can use)</span></h2>
+<section id="plugins"></section>
+
+<h2>Tools <span class="cat">(<span id="toolcount"></span> registered)</span></h2>
+<section><table id="tools"></table></section>
+
+<script>
+const $=s=>document.querySelector(s), api=(p,o)=>fetch(p,o).then(r=>r.json());
+$('#host').textContent=location.host;
+
+api('/health').then(h=>{
+  $('#ollama').textContent='Ollama '+(h.ollama_online?'online':'offline');
+  $('#ollama').className='pill '+(h.ollama_online?'on':'off');
+  $('#toolsp').textContent=h.tools+' tools · '+h.personas.length+' agents';
+  $('#models').innerHTML=Object.entries(h.models).map(([k,v])=>`<code>${k}: ${v}</code>`).join('');
+});
+
+api('/api/stats').then(s=>{
+  const labels={conversations:'Chats',messages:'Messages',notes:'Notes',documents:'Docs',
+    tasks:'Tasks',events:'Events',memories:'Memories',plugins_enabled:'Plugins on'};
+  $('#stats').innerHTML=Object.entries(s).map(([k,v])=>
+    `<div class="stat"><div class="n">${v}</div><div class="l">${labels[k]||k}</div></div>`).join('');
+});
+
+api('/api/plugins').then(ps=>{
+  const c={tool:'#3b82f6',ai:'#ef4444',visualization:'#f5b301',utility:'#10b981'};
+  $('#plugins').innerHTML=ps.map(p=>`<div class="prow">
+    <div class="grow"><b>${p.name}</b> <span class="badge" style="color:${c[p.category]||'#737373'}">${p.category}</span>
+    <div class="cat">${p.description}</div></div>
+    <div class="sw ${p.enabled?'on':''}" onclick="togglePlugin('${p.slug}',this)"></div></div>`).join('');
+});
+
+async function togglePlugin(slug,el){const r=await api('/api/plugins/'+slug+'/toggle',{method:'POST'});
+  el.classList.toggle('on',r.enabled);}
+
+api('/api/tools').then(ts=>{
+  $('#toolcount').textContent=ts.length;
+  $('#tools').innerHTML=ts.map(t=>`<tr><td class="tool">${t.name}</td>
+    <td><span class="badge ${t.danger?'danger':''}">${t.plugin}${t.danger?' ⚠':''}</span></td>
+    <td style="color:var(--muted)">${t.description}</td></tr>`).join('');
+});
+</script>
+</body>
+</html>
